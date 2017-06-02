@@ -1,4 +1,4 @@
-require_relative '../lib/darksky-slackbot.rb'
+require_relative '../lib/darksky.rb'
 require 'rspec'
 
 describe "darksky functionality" do
