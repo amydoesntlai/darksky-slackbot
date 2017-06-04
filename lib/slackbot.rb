@@ -10,4 +10,3 @@ class Slackbot < SlackRubyBot::Bot
     client.say(text: Darksky.weather_tomorrow, channel: data.channel)
   end
 end
-Slackbot.run
