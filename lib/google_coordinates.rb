@@ -5,9 +5,12 @@ class GoogleCoordinates
     gmaps_url = "https://maps.googleapis.com/maps/api/geocode/json?address=#{location}&key=#{ENV['MAPS_API_KEY']}"
     response = HTTParty.get(gmaps_url)
     if response.code == 200
-      if response['results'].count == 1
+      if response['error_message']
+        return response['error_message']
+      elsif response['results'].count == 1
+        description = response['results'].first['formatted_address']
         coords = response['results'].first['geometry']['location']
-        return [coords['lat'], coords['lng']]
+        return [description, "#{coords['lat']},#{coords['lng']}"]
       elsif response['results'].count > 1
         return "Your query resulted in more than one match. Please try again."
       else

@@ -2,7 +2,7 @@ require 'httparty'
 
 class Darksky
   def self.darksky_info(coordinates)
-    darksky_url = "https://api.darksky.net/forecast/#{ENV['DARKSKY_API_KEY']}/#{coordinates.join(',')}"
+    darksky_url = "https://api.darksky.net/forecast/#{ENV['DARKSKY_API_KEY']}/#{coordinates}"
     response = HTTParty.get(darksky_url)
     if response.code == 200
       return response
@@ -12,7 +12,6 @@ class Darksky
   end
 
   def self.weather_now(coordinates)
-    return "Invalid coordinates: #{coordinates}" unless coordinates.is_a? Array
     info = darksky_info(coordinates)
     if info.is_a? String
       return info
@@ -25,7 +24,6 @@ class Darksky
   def self.weather_tomorrow(coordinates)
     #todo: DRY these functions up
     #todo: make sure "tomorrow's weather" is weather for the next day, not 24 hours after the query time (e.g. asking for weather at 11pm would bring up weather starting in the morning, not 11pm the next night)
-    return "Invalid coordinates: #{coordinates}" unless coordinates.is_a? Array
     info = darksky_info(coordinates)
     if info.is_a? String
       return info
