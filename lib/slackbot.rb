@@ -4,25 +4,22 @@ require_relative './google_coordinates.rb'
 
 class Slackbot < SlackRubyBot::Bot
   command 'weather now' do |client, data, match|
-    location = match[:expression] || 'Washington DC'
-    location_description, coordinates = GoogleCoordinates.location_info(location)
-    if coordinates.blank?
-      client.say(text: location_description, channel: data.channel)
-    else
-      weather_now = Darksky.weather_now(coordinates)
-      client.say(text: "Weather now for #{location_description}: #{weather_now}", channel: data.channel)
-    end
+    client.say(text: bot_response('now', match), channel: data.channel)
   end
 
   command 'weather tomorrow' do |client, data, match|
-    #todo: DRY these functions up
+    client.say(text: bot_response('tomorrow', match), channel: data.channel)
+  end
+
+  def self.bot_response(timeframe, match)
     location = match[:expression] || 'Washington DC'
     location_description, coordinates = GoogleCoordinates.location_info(location)
     if coordinates.blank?
-      client.say(text: location_description, channel: data.channel)
+      # location_description will be an error message string in this scenario
+      return location_description
     else
-      weather_tomorrow = Darksky.weather_tomorrow(coordinates)
-      client.say(text: "Weather tomorrow for #{location_description}: #{weather_tomorrow}", channel: data.channel)
+      weather = Darksky.weather(timeframe, coordinates)
+      return "Weather #{timeframe} for #{location_description}: #{weather}"
     end
   end
 end
