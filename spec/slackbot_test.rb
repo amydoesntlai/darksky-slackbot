@@ -13,6 +13,9 @@ describe Slackbot do
 
     @tomorrow_summary = 'Light rain starting in the morning, continuing until afternoon.'
     allow(Darksky).to receive(:weather).with('tomorrow', coords_str).and_return(@tomorrow_summary)
+
+    @error = 'Your query resulted in no matches. Please try again.'
+    allow_any_instance_of(GoogleCoordinates).to receive(:error).and_return(@error)
   end
 
   it "responds to the 'weather now' command with the current weather" do
@@ -23,6 +26,11 @@ describe Slackbot do
     expect(message: "#{SlackRubyBot.config.user} weather now", channel: 'channel').to respond_with_slack_message("Weather now for Washington, DC, USA: #{@weather_now}")
   end
 
+  it "responds to the 'weather now' command when the location gives an error" do
+    allow_any_instance_of(GoogleCoordinates).to receive(:coordinates).and_return(nil)
+    expect(message: "#{SlackRubyBot.config.user} weather now gibberish", channel: 'channel').to respond_with_slack_message(@error)
+  end
+
   it "responds to the 'weather tomorrow' command with tomorrow's weather" do
     expect(message: "#{SlackRubyBot.config.user} weather tomorrow washington dc", channel: 'channel').to respond_with_slack_message("Weather tomorrow for Washington, DC, USA: #{@tomorrow_summary}")
   end
@@ -30,4 +38,10 @@ describe Slackbot do
   it "responds to the 'weather tomorrow' command with tomorrow's weather in DC when no location is given" do
     expect(message: "#{SlackRubyBot.config.user} weather tomorrow", channel: 'channel').to respond_with_slack_message("Weather tomorrow for Washington, DC, USA: #{@tomorrow_summary}")
   end
+
+  it "responds to the 'weather tomorrow' command when the location gives an error" do
+    allow_any_instance_of(GoogleCoordinates).to receive(:coordinates).and_return(nil)
+    expect(message: "#{SlackRubyBot.config.user} weather now gibberish", channel: 'channel').to respond_with_slack_message(@error)
+  end
+
 end
