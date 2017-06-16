@@ -12,14 +12,13 @@ class Slackbot < SlackRubyBot::Bot
   end
 
   def self.bot_response(timeframe, match)
-    location = match[:expression] || 'Washington DC'
-    location_description, coordinates = GoogleCoordinates.location_info(location)
-    if coordinates.blank?
-      # location_description will be an error message string in this scenario
-      return location_description
+    query_location = match[:expression] || 'Washington DC'
+    location = GoogleCoordinates.new(query_location)
+    if location.coordinates.nil?
+      location.error
     else
-      weather = Darksky.weather(timeframe, coordinates)
-      return "Weather #{timeframe} for #{location_description}: #{weather}"
+      weather = Darksky.weather(timeframe, location.coordinates)
+      "Weather #{timeframe} for #{location.description}: #{weather}"
     end
   end
 end
